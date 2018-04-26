@@ -43,8 +43,18 @@ namespace Cecs475.BoardGames.Othello.Model {
 		private List<List<FlipSet>> mFlipSets = new List<List<FlipSet>>();
 
 		private int mAdvantageValue;
+
+		private static sbyte[,] mPositionWeights = new sbyte[BOARD_SIZE, BOARD_SIZE] {
+			{16, 0, 8, 8, 8, 8, 0, 16},
+			{0,  0, 1, 1, 1, 1, 0, 0},
+			{8,  1, 2, 2, 2, 2, 1, 8},
+			{8,  1, 2, 2, 2, 2, 1, 8},
+			{8,  1, 2, 2, 2, 2, 1, 8},
+			{8,  1, 2, 2, 2, 2, 1, 8},
+			{0,  0, 1, 1, 1, 1, 0, 0},
+			{16, 0, 8, 8, 8, 8, 0, 16}};
 		#endregion
-		
+
 		#region Auto properties.
 		/// <summary>
 		/// How many "pass" moves have been applied in a row.
@@ -108,6 +118,7 @@ namespace Cecs475.BoardGames.Othello.Model {
 				// Otherwise update the board at the move's position with the current player.
 				SetPlayerAtPosition(m.Position, CurrentPlayer);
 				mAdvantageValue += mCurrentPlayer;
+				BoardWeight += mCurrentPlayer * mPositionWeights[m.Position.Row, m.Position.Col];
 
 				// Iterate through all 8 directions radially from the move's position.
 				foreach (BoardDirection dir in BoardDirection.CardinalDirections) {
@@ -131,6 +142,7 @@ namespace Cecs475.BoardGames.Othello.Model {
 							newPos = newPos.Translate(reverse);
 							SetPlayerAtPosition(newPos, CurrentPlayer);
 							mAdvantageValue += 2 * mCurrentPlayer;
+							BoardWeight += 2 * mCurrentPlayer * mPositionWeights[newPos.Row, newPos.Col];
 
 							steps--;
 						}
@@ -192,11 +204,11 @@ namespace Cecs475.BoardGames.Othello.Model {
 		public void UndoLastMove() {
 			OthelloMove m = mMoveHistory.Last();
 
-			// Note: there is a bug in this code.
 			if (!m.IsPass) {
 				// Reset the board at the move's position.
 				SetPlayerAtPosition(m.Position, 0);
 				mAdvantageValue += mCurrentPlayer;
+				BoardWeight += mCurrentPlayer * mPositionWeights[m.Position.Row, m.Position.Col];
 
 				// Iterate through the move's recorded flipsets.
 				foreach (var flipSet in mFlipSets.Last()) {
@@ -208,6 +220,7 @@ namespace Cecs475.BoardGames.Othello.Model {
 						// we are undoing, whose pieces we must restore.
 						SetPlayerAtPosition(pos, CurrentPlayer);
 						mAdvantageValue += 2 * mCurrentPlayer;
+						BoardWeight += 2 * mCurrentPlayer * mPositionWeights[pos.Row, pos.Col];
 					}
 				}
 
@@ -287,6 +300,10 @@ namespace Cecs475.BoardGames.Othello.Model {
 		}
 
 		IReadOnlyList<IGameMove> IGameBoard.MoveHistory => mMoveHistory;
+
+		public long BoardWeight {
+			get; private set;
+		}
 
 		void IGameBoard.ApplyMove(IGameMove move) {
 			ApplyMove(move as OthelloMove);

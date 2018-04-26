@@ -170,6 +170,10 @@ namespace Cecs475.BoardGames.Chess.Model {
 			ApplyMove(m as ChessMove);
 		}
 		IReadOnlyList<IGameMove> IGameBoard.MoveHistory => mMoveHistory;
+
+		// You will need to change this later.
+		public long BoardWeight => CurrentAdvantage.Player == 1 ?
+			CurrentAdvantage.Advantage : -CurrentAdvantage.Advantage;
 		#endregion
 
 		// You may or may not need to add code to this constructor.
