@@ -18,7 +18,9 @@ namespace Cecs475.BoardGames.TicTacToe.WpfView {
 		}
 
 		public IWpfGameView CreateGameView(NumberOfPlayers players) {
-			return new TicTacToeView();
+			var view = new TicTacToeView();
+			view.ViewModel.Players = players;
+			return view;
 		}
 	}
 }

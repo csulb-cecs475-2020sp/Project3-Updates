@@ -27,7 +27,9 @@ namespace Cecs475.BoardGames.Othello.WpfView {
 		}
 
 		public IWpfGameView CreateGameView(NumberOfPlayers players) {
-			return new OthelloView();
+			var view = new OthelloView();
+			view.OthelloViewModel.Players = players;
+			return view;
 		}
 	}
 }
