@@ -117,7 +117,7 @@ namespace Cecs475.BoardGames.Othello.Model {
 					do {
 						newPos = newPos.Translate(dir);
 						steps++;
-					} while (PositionIsEnemy(newPos, CurrentPlayer));
+					} while (PositionInBounds(newPos) && PositionIsEnemy(newPos, CurrentPlayer));
 
 					// This is a valid direction of flips if we moved at least 2 squares, and ended in bounds and on a
 					// "friendly" square.
@@ -166,7 +166,7 @@ namespace Cecs475.BoardGames.Othello.Model {
 					do {
 						newPos = newPos.Translate(dir);
 						steps++;
-					} while (PositionIsEnemy(newPos, CurrentPlayer));
+					} while (PositionInBounds(newPos) && PositionIsEnemy(newPos, CurrentPlayer));
 
 					// This is a valid direction of flips if we moved at least 2 squares, and ended in bounds and on a
 					// "friendly" square.
@@ -238,7 +238,9 @@ namespace Cecs475.BoardGames.Othello.Model {
 		/// and the MSB being index 63.
 		/// </summary>
 		private static int GetBitIndexForPosition(BoardPosition boardPosition) =>
-			63 - (boardPosition.Row * 8 + boardPosition.Col);
+			PositionInBounds(boardPosition) ? 
+				63 - (boardPosition.Row * 8 + boardPosition.Col)
+				: 64;
 
 		private void SetPlayerAtPosition(BoardPosition position, int player) {
 			// Construct a bitmask for the bit position corresponding to the BoardPosition.
@@ -263,6 +265,9 @@ namespace Cecs475.BoardGames.Othello.Model {
 				mWhitePieces &= ~mask;
 			}
 		}
+
+		private static bool PositionInBounds(BoardPosition pos) =>
+			pos.Row >= 0 && pos.Col >= 0 && pos.Row <= 7 && pos.Col <= 7;
 
 		/// <summary>
 		/// Returns true if the given in-bounds position is an enemy of the given player.
