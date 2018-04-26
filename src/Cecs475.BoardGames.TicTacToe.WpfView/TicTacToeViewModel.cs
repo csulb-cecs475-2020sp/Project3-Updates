@@ -95,6 +95,7 @@ namespace Cecs475.BoardGames.TicTacToe.WpfView {
 			}
 			OnPropertyChanged(nameof(BoardAdvantage));
 			OnPropertyChanged(nameof(CurrentPlayer));
+			OnPropertyChanged(nameof(CanUndo));
 		}
 
 		public void UndoMove() {

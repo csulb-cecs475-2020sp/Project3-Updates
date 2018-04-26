@@ -41,18 +41,16 @@ namespace Cecs475.BoardGames.TicTacToe.Model {
 
 		public bool IsFinished { get; private set; }
 
-		public GameAdvantage CurrentAdvantage => new GameAdvantage(mValue, mValue == 0 ? 0 : mValue > 0 ? 1 : 2);
+		public GameAdvantage CurrentAdvantage => new GameAdvantage(mValue == 0 ? 0 : mValue > 0 ? 1 : 2, mValue);
 
-		IReadOnlyList<IGameMove> IGameBoard.MoveHistory => throw new NotImplementedException();
-
-		public long BoardWeight => throw new NotImplementedException();
+		IReadOnlyList<IGameMove> IGameBoard.MoveHistory => MoveHistory;
 
 		public void ApplyMove(TicTacToeMove m) {
 			SetPosition(m.Position, CurrentPlayer);
 			mWeight += mPlayer * mWeights[m.Position.Row, m.Position.Col];
 			mMoveHistory.Add(m);
 			mPlayer = -mPlayer;
-			IsFinished = GameIsOver();
+			IsFinished = GameIsOver() || MoveHistory.Count == 9;
 		}
 
 		/// <summary>
@@ -103,6 +101,7 @@ namespace Cecs475.BoardGames.TicTacToe.Model {
 			SetPosition(m.Position, 0);
 			mMoveHistory.RemoveAt(MoveHistory.Count - 1);
 			mWeight += mPlayer * mWeights[m.Position.Row, m.Position.Col];
+			mPlayer = -mPlayer;
 			mValue = 0;
 			IsFinished = false;
 		}
@@ -115,7 +114,7 @@ namespace Cecs475.BoardGames.TicTacToe.Model {
 			ApplyMove(move as TicTacToeMove);
 		}
 
-		public long Weight {
+		public long BoardWeight {
 			get {
 				return CurrentAdvantage.Player == 0 ? mWeight :
 					CurrentAdvantage.Player == 1 ? long.MaxValue :
